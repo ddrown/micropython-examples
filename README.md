@@ -6,6 +6,7 @@ Some of these examples will require libraries from the lib directory.
 
 * blink-gpio.py - blinks screen via gpio backlight
 * blink.py - blinks screen via pixel commands
+* ble.py - publish temperature via bluetooth low energy
 * classfill.py - fill screen with a single color
 * clock.py - show clock on screen
 * colorspace.py - show YCbCr/YUV colorspace on screen
