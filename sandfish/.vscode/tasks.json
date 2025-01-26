@@ -1,0 +1,25 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Local Run",
+      "type": "shell",
+      "command": "python ${file}",
+      "problemMatcher": []
+    },
+    {
+      "label": "esp32 Run",
+      "type": "shell",
+      "command": "./ampy.sh run ${file}",
+      "problemMatcher": []
+    },
+    {
+      "label": "esp32 upload",
+      "type": "shell",
+      "command": "./ampy.sh put ${relativeFile} /${relativeFile}",
+      "problemMatcher": []
+    },
+  ]
+}
