@@ -3,7 +3,7 @@ from lib.pbmimage import PBMImage
 # This needs the pbm image files from the digits library uploaded to the esp32 flash
 
 class DigitDisplay:
-    def __init__(self, display):
+    def __init__(self, display, x, y):
         self.images = {}
         for digit in range(10):
             self.images[str(digit)] = PBMImage(f"digits/{digit}.pbm")
@@ -12,8 +12,12 @@ class DigitDisplay:
         self.images["-"] = PBMImage("digits/dash.pbm")
         self.last_write = ""
         self.display_obj = display
+        self.x = x
+        self.y = y
 
-    def display(self, x, y, s):
+    def display(self, s):
+        x = self.x
+        y = self.y
         for i in range(len(s)):
             char = s[i]
             if len(self.last_write) > i and self.last_write[i] == char:
