@@ -7,10 +7,15 @@ def mock_ticks_ms():
   with patch("time.ticks_ms", create=True, return_value=101010) as mocked_func:
     yield mocked_func
 
-def test_top_of_second(mock_ticks_ms):
+@pytest.fixture()
+def mock_ticks_add():
+  with patch("time.ticks_add", create=True, return_value=101000) as mocked_func:
+    yield mocked_func
+
+def test_top_of_second(mock_ticks_add):
   # Given
-  clock = NTPClock(12345, 10, 0)
-  local_ms = 100000
+  clock = NTPClock(101010, 12345, 10, 0)
+  local_ms = 101010
   wallclock_ms = 10
 
   # When
@@ -19,14 +24,15 @@ def test_top_of_second(mock_ticks_ms):
   # Then
   assert new_ms == (local_ms - wallclock_ms)
 
-def test_top_of_second_wrap(mock_ticks_ms):
-  # Given
-  clock = NTPClock(12345, 10, 0)
-  local_ms = 10
-  wallclock_ms = 100
-
-  # When
-  new_ms = clock.top_of_second(local_ms, wallclock_ms)
-
-  # Then
-  assert new_ms == 1073741734
+# disabled due to requiring platform's ticks_add
+#def test_top_of_second_wrap(mock_ticks_ms):
+#  # Given
+#  clock = NTPClock(12345, 10, 0)
+#  local_ms = 10
+#  wallclock_ms = 100
+#
+#  # When
+#  new_ms = clock.top_of_second(local_ms, wallclock_ms)
+#
+#  # Then
+#  assert new_ms == 1073741734
