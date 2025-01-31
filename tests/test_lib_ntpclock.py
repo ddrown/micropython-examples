@@ -24,15 +24,15 @@ def test_top_of_second(mock_ticks_add):
   # Then
   assert new_ms == (local_ms - wallclock_ms)
 
-# disabled due to requiring platform's ticks_add
-#def test_top_of_second_wrap(mock_ticks_ms):
-#  # Given
-#  clock = NTPClock(12345, 10, 0)
-#  local_ms = 10
-#  wallclock_ms = 100
-#
-#  # When
-#  new_ms = clock.top_of_second(local_ms, wallclock_ms)
-#
-#  # Then
-#  assert new_ms == 1073741734
+@pytest.mark.skip(reason="requires micropython platform implementation")
+def test_top_of_second_wrap(mock_ticks_ms):
+  # Given
+  clock = NTPClock(101010, 12345, 10, 0)
+  local_ms = 10
+  wallclock_ms = 100
+
+  # When
+  new_ms = clock.top_of_second(local_ms, wallclock_ms)
+
+  # Then
+  assert new_ms == 1073741734
