@@ -34,3 +34,30 @@ class NTPClock:
 
     return (seconds, ms)
 
+  def simple_linear_regression(self, x, y):
+    if len(x) <= 1:
+      return (0,0)
+    x_mean = sum(x) / float(len(x))
+    y_mean = sum(y) / float(len(y))
+    x_var = 0
+    y_var = 0
+    for i in range(0, len(x)):
+      x_diff = x[i] - x_mean
+      x_var += x_diff ** 2
+      y_var += (x_diff) * (y[i] - y_mean)
+    beta = y_var / x_var
+    alpha = y_mean - beta * x_mean
+    return (beta, alpha)
+
+  def timestamps_regression(self, timestamps):
+    x = []
+    y = []
+    for i in range(0, len(timestamps)):
+      s = timestamps[i][0] - timestamps[0][0]
+      rtt = timestamps[i][3] - timestamps[i][2]
+      # micropython floats have around 6 digits of precision?
+      n = s * 1000 + int(timestamps[i][1] - timestamps[0][1] + rtt/2)
+      x.append(n)
+      d = n - timestamps[i][3] + timestamps[0][3]
+      y.append(d)
+    return self.simple_linear_regression(x, y)
