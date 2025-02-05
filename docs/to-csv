@@ -1,0 +1,3 @@
+#!/bin/sh
+
+sed -e 's/:/ /g' -e 's/[nlopdtr]=//g' -e 's/ /,/g' <clock-offset.txt >clock-offset.csv
