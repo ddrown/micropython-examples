@@ -29,22 +29,31 @@ def start_ntp(ntpserver):
     return (ntp, clock)
 
 async def poll_ntp(ntp, clock):
+    timestamps = []
     await asyncio.sleep_ms(64000)
     while True:
         (now_s, now_ms) = clock.now()
         now = ntp.ntptime()
+        timestamps.append(now)
+
         now_localtime = now[0] - 6 * 60 * 60
         now_ticks = time.ticks_ms()
         rtt = now[3] - now[2]
         offset = (now_localtime - now_s)
         offset_ms = offset * 1000 + now[1] - now_ms
 
-        adjust_ppm = offset_ms / 1.024 # try to eliminate the offset in one poll
-        clock.set_adjust(adjust_ppm)
+        p_ppm = offset_ms / 1.024 # try to eliminate the offset in one poll
+        d_ppm = clock.timestamps_regression(timestamps)[0] * 1_000_000
 
-        print(f"n={now_localtime}:{now[1]} l={now_s}:{now_ms} o={offset_ms} p={adjust_ppm} t={now_ticks} r={rtt}")
+        clock.set_adjust(p_ppm + d_ppm)
 
-        await asyncio.sleep_ms(1024000)
+        print(f"n={now_localtime}:{now[1]} l={now_s}:{now_ms} o={offset_ms} p={p_ppm} d={d_ppm} t={now_ticks} r={rtt}")
+
+        if len(timestamps) < 10:
+            await asyncio.sleep_ms(64000)
+        else:
+            timestamps.pop(0)
+            await asyncio.sleep_ms(1024000)
 
 async def show_clock(clock, display):
     digit = DigitDisplay(display, 0, 0)
