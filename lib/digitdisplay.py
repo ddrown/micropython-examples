@@ -16,6 +16,8 @@ class DigitDisplay:
         self.y = y
 
     def display(self, s):
+        # TODO: colon, dot, dash are all not as wide, and the display gets jumbled (ex: "-1" => "1")
+        # TODO: shorter output doesn't clear the remaining characters (ex: "000" => "0")
         x = self.x
         y = self.y
         for i in range(len(s)):

@@ -1,8 +1,7 @@
 from lib.ili9488 import ILI9488
 import time
 from lib.digitdisplay import DigitDisplay
-from lib.ntp import NTPClient
-from lib.ntpclock import NTPClock
+from lib.clocksync import ClockSync
 from lib.wifi import connect_wifi
 import asyncio
 
@@ -20,40 +19,11 @@ def setup():
 def start_ntp(ntpserver):
     connect_wifi()
 
-    ntp = NTPClient(ntpserver)
-    now = ntp.ntptime()
-    now_localtime = now[0] - 6 * 60 * 60 # TODO: proper timezone
+    timezone_offset = -6 * 60 * 60
 
-    clock = NTPClock(now[2], now_localtime, now[1], 0)
+    clock = ClockSync(timezone_offset, ntpserver)
 
-    return (ntp, clock)
-
-async def poll_ntp(ntp, clock):
-    timestamps = []
-    await asyncio.sleep_ms(64000)
-    while True:
-        (now_s, now_ms) = clock.now()
-        now = ntp.ntptime()
-        timestamps.append(now)
-
-        now_localtime = now[0] - 6 * 60 * 60
-        now_ticks = time.ticks_ms()
-        rtt = now[3] - now[2]
-        offset = (now_localtime - now_s)
-        offset_ms = offset * 1000 + now[1] - now_ms
-
-        p_ppm = offset_ms / 1.024 # try to eliminate the offset in one poll
-        d_ppm = clock.timestamps_regression(timestamps)[0] * 1_000_000
-
-        clock.set_adjust(p_ppm + d_ppm)
-
-        print(f"n={now_localtime}:{now[1]} l={now_s}:{now_ms} o={offset_ms} p={p_ppm} d={d_ppm} t={now_ticks} r={rtt}")
-
-        if len(timestamps) < 10:
-            await asyncio.sleep_ms(64000)
-        else:
-            timestamps.pop(0)
-            await asyncio.sleep_ms(1024000)
+    return clock
 
 async def show_clock(clock, display):
     digit = DigitDisplay(display, 0, 0)
@@ -64,17 +34,12 @@ async def show_clock(clock, display):
 
     while True:
         start = time.ticks_ms()
-        (now_s, now_ms) = clock.now()
-        hours = (now_s // (60 * 60)) % 12
-        if hours == 0:
-            hours = 12
-        minutes = now_s // 60 % 60
-        seconds = now_s % 60
-        ms = now_ms // 10
+        (now_s, hours, minutes, seconds, ms) = clock.now()
+        ms = ms // 10 # only show 10s of ms
         s = f"{hours:02}:{minutes:02}:{seconds:02}.{ms:02}"
         digit.display(s)
-        end = time.ticks_ms()
         if printed < 2:
+            end = time.ticks_ms()
             diff = time.ticks_diff(end, start)
             print(f"loop {diff} ms") # .x digit:25~28ms .xx digit:~30ms
             printed += 1
@@ -85,11 +50,30 @@ async def show_clock(clock, display):
             last_hours = hours
         await asyncio.sleep_ms(0)
 
+async def show_ntp_stats(clock, display):
+    offset = DigitDisplay(display, 0, 48*2)
+    poll = DigitDisplay(display, 0, 48*3)
+    rtt = DigitDisplay(display, 0, 48*4)
+    ppm = DigitDisplay(display, 0, 48*5)
+    d_ppm = DigitDisplay(display, 0, 48*6)
+
+    while True:
+        await asyncio.sleep_ms(64000)
+        if clock.last_poll is None:
+            continue
+
+        offset.display(f"{clock.last_offset:.3f}")
+        poll.display(f"{clock.last_poll}")
+        rtt.display(f"{clock.last_rtt}")
+        ppm.display(f"{clock.last_ppm:.3f}")
+        d_ppm.display(f"{clock.last_d_ppm:.3f}")
+
 async def main():
     display = setup()
-    (ntp, clock) = start_ntp("ntp.drown.org")
+    clock = start_ntp("ntp.drown.org")
     t1 = asyncio.create_task(show_clock(clock, display))
-    t2 = asyncio.create_task(poll_ntp(ntp, clock))
-    await asyncio.gather(t1, t2)
+    t2 = asyncio.create_task(clock.poll_ntp())
+    t3 = asyncio.create_task(show_ntp_stats(clock, display))
+    await asyncio.gather(t1, t2, t3)
 
 asyncio.run(main())
