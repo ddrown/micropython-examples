@@ -62,11 +62,11 @@ async def show_ntp_stats(clock, display):
         if clock.last_poll is None:
             continue
 
-        offset.display(f"{clock.last_offset:.3f}")
-        poll.display(clock.last_poll_s)
-        rtt.display(f"{clock.last_rtt}")
-        ppm.display(f"{clock.last_ppm:.3f}")
-        d_ppm.display(f"{clock.last_d_ppm:.3f}")
+        offset.display(f"o {clock.last_offset:.3f}")
+        poll.display(f"p {clock.last_poll_s}")
+        rtt.display(f"rtt {clock.last_rtt}")
+        ppm.display(f"p {clock.last_ppm:.3f}")
+        d_ppm.display(f"d {clock.last_d_ppm:.3f}")
 
 async def main():
     display = setup()
