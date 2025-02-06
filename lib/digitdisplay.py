@@ -3,17 +3,26 @@ from lib.pbmimage import PBMImage
 # This needs the pbm image files from the digits library uploaded to the esp32 flash
 
 class DigitDisplay:
+    # only load the images once, no matter how many displays we have
+    __images = {}
+    __special = {}
+
     def __init__(self, display, x, y):
-        self.images = {}
-        for digit in range(10):
-            self.images[str(digit)] = PBMImage(f"digits/{digit}.pbm")
-        self.images[":"] = PBMImage("digits/colon.pbm")
-        self.images["."] = PBMImage("digits/dot.pbm")
-        self.images["-"] = PBMImage("digits/dash.pbm")
-        self.special_images = {
-            " ": bytes([0x00, 0x00, 0x00] * (self.images["0"].width * self.images["0"].height)),
-            "": bytes([0x00, 0x00, 0x00] * (2 * self.images["0"].height)),
-        }
+        self.images = self.__images
+        self.special_images = self.__special
+
+        if "0" not in self.images:
+            for digit in range(10):
+                self.images[str(digit)] = PBMImage(f"digits/{digit}.pbm")
+            for char_i in range(26):
+                char = chr(ord('a') + char_i)
+                self.images[char] = PBMImage(f"digits/{char}.pbm")
+            self.images[":"] = PBMImage("digits/colon.pbm")
+            self.images["."] = PBMImage("digits/dot.pbm")
+            self.images["-"] = PBMImage("digits/dash.pbm")
+            self.special_images[" "] = bytes([0x00, 0x00, 0x00] * (self.images["0"].width * self.images["0"].height))
+            self.special_images[""] = bytes([0x00, 0x00, 0x00] * (2 * self.images["0"].height))
+
         self.last_write = ""
         self.display_obj = display
         self.x = x
@@ -29,8 +38,15 @@ class DigitDisplay:
         self.charspots = [x] # starts at left, ends with rightmost
         for i in range(len(s)):
             char = s[i]
+            if char == " ":
+                image = self.images["0"] # use the width/height from 0
+                imagedata = self.special_images[" "]
+            else:
+                image = self.images[char]
+                imagedata = image.spidata()
+
             if len(self.last_write) > i and self.last_write[i] == char and x == oldspots[i]:
-                x = x + self.images[char].width + 1
+                x = x + image.width + 1
                 self.charspots.append(x)
                 continue
 
@@ -38,12 +54,6 @@ class DigitDisplay:
             if len(oldspots) > i and x != oldspots[i] and x >= 2:
                 self.display_obj.write_xy(x - 2, y, x - 1, y_end, self.special_images[""])
 
-            if char == " ":
-                image = self.images["0"] # use the width/height from 0
-                imagedata = self.special_images[" "]
-            else:
-                image = self.images[char]
-                imagedata = image.spidata()
             x_end = x + image.width - 1
             self.display_obj.write_xy(x, y, x_end, y_end, imagedata)
             x = x_end + 2
