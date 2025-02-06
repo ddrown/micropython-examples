@@ -35,8 +35,8 @@ async def show_clock(clock, display):
     while True:
         start = time.ticks_ms()
         (now_s, hours, minutes, seconds, ms) = clock.now()
-        ms = ms // 10 # only show 10s of ms
-        s = f"{hours:02}:{minutes:02}:{seconds:02}.{ms:02}"
+        ms = ms // 100 # only show 100s of ms
+        s = f"{hours:02}:{minutes:02}:{seconds:02}.{ms:01}"
         digit.display(s)
         if printed < 2:
             end = time.ticks_ms()
