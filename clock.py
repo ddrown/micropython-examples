@@ -63,7 +63,7 @@ async def show_ntp_stats(clock, display):
             continue
 
         offset.display(f"{clock.last_offset:.3f}")
-        poll.display(f"{clock.last_poll}")
+        poll.display(clock.last_poll_s)
         rtt.display(f"{clock.last_rtt}")
         ppm.display(f"{clock.last_ppm:.3f}")
         d_ppm.display(f"{clock.last_d_ppm:.3f}")
