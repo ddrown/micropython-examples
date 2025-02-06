@@ -79,6 +79,11 @@ class ILI9488:
             self.hspi.write(data)
         self.cs_pin.on()
 
+    def write_xy(self, x, y, x_end, y_end, data):
+        self.send_spi(bytes([0x2A]), bytes([x >> 8, x & 0xFF, x_end >> 8, x_end & 0xFF]))
+        self.send_spi(bytes([0x2B]), bytes([y >> 8, y & 0xFF, y_end >> 8, y_end & 0xFF]))
+        self.send_spi(bytes([0x2C]), data)
+
     # about 180ms
     def blank_screen(self):
         self.send_spi(bytes([0x2A]), bytes([0x0, 0x0, 320 >> 8, 320 & 0xFF]))
