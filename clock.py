@@ -16,12 +16,19 @@ def setup():
 
     return display
 
-def start_ntp(ntpserver):
+def start_ntp(ntpserver, display):
+    status = DigitDisplay(display, 0, 48*2)
+    status.display("connecting")
+
     connect_wifi()
 
     timezone_offset = -6 * 60 * 60
 
+    status.display("ntp query")
+
     clock = ClockSync(timezone_offset, ntpserver)
+
+    status.display(" ")
 
     return clock
 
@@ -70,7 +77,7 @@ async def show_ntp_stats(clock, display):
 
 async def main():
     display = setup()
-    clock = start_ntp("ntp.drown.org")
+    clock = start_ntp("ntp.drown.org", display)
     t1 = asyncio.create_task(show_clock(clock, display))
     t2 = asyncio.create_task(clock.poll_ntp())
     t3 = asyncio.create_task(show_ntp_stats(clock, display))
