@@ -21,18 +21,27 @@ class ClockSync:
         """Start this as an asyncio task"""
         timestamps = []
         await asyncio.sleep_ms(64000)
+        min_rtt = None
         while True:
             (now_s, now_ms) = self.clock.now()
             now = self.ntp.ntptime()
             timestamps.append(now)
 
             now_localtime = now[0]
-            now_ticks = time.ticks_ms()
             rtt = now[3] - now[2]
             offset = (now_localtime - now_s)
             offset_ms = offset * 1000 + now[1] - now_ms
 
-            p_ppm = offset_ms / 1.024 # try to eliminate the offset in one poll
+            # to consider: should min_rtt be allowed to go up in case the latency goes up for hours?
+            if min_rtt is None or rtt < min_rtt:
+                min_rtt = rtt
+
+            # vary offset/propotional gain based on how much slower the rtt is from the "ideal" speed
+            rtt_over = rtt - min_rtt
+            p_gain = rtt_over / 4
+            p_gain = min(max(p_gain, 1), 10)
+
+            p_ppm = offset_ms / p_gain
             d_ppm = self.clock.timestamps_regression(timestamps)[0] * 1_000_000
             ppm = p_ppm + d_ppm
 
