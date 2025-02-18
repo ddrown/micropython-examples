@@ -63,8 +63,8 @@ class DigitDisplay:
         if len(oldspots) > 0 and oldspots[-1] > self.charspots[-1]:
             start_x = self.charspots[-1] - 2
             end_x = oldspots[-1]
-            width = end_x - start_x
-            height = y_end - y
+            width = end_x - start_x + 1
+            height = y_end - y + 1
             largeblank = bytes([0x00, 0x00, 0x00] * (width * height))
             self.display_obj.write_xy(start_x, y, end_x - 1, y_end, largeblank)
 
