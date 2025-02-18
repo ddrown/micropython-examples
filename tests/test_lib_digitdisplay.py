@@ -35,7 +35,7 @@ def image_compare(display, expected_filename):
 
     image = display.to_image()
 
-    if image.tobytes != expected.tobytes():
+    if image.tobytes() != expected.tobytes():
         # save a copy for comparison on failure
         image.save(f"tests/test_lib_digitdisplay_{expected_filename}_failed.png")
     assert(image.tobytes() == expected.tobytes())
