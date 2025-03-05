@@ -55,7 +55,9 @@ async def show_clock(clock, display):
             date_s = f"{date[0]:04}-{date[1]:02}-{date[2]:02}"
             date_digits.display(date_s)
             last_hours = hours
-        await asyncio.sleep_ms(0)
+        now = time.ticks_ms()
+        sleepfor = 33 - (now % 33)
+        await asyncio.sleep_ms(sleepfor)
 
 async def show_ntp_stats(clock, display):
     offset = DigitDisplay(display, 0, 48*2)
