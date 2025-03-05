@@ -17,6 +17,7 @@ Some of these examples will require libraries from the lib directory.
 * gpio.py - blink RGB LED
 * gradient.py - displays a gradient to screen every 30 seconds
 * loop-showing-images.py - show random images from sdcard
+* mqtt.py - connect to mqtt server and listen for messages
 * sdcard.py - mount sdcard, load raw RGB bytes from sdcard, display them on the screen
 * showimage-filesystem.py - load raw RGB from flash, display on screen
 * showimage-net-async.py - download file from http, display it to screen

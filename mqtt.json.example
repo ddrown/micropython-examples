@@ -1,0 +1,5 @@
+{
+	"server": "mosquitto.example.com",
+	"user": "micropython",
+	"password": "secrets"
+}
