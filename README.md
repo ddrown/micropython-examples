@@ -9,6 +9,7 @@ Some of these examples will require libraries from the lib directory.
 * ble.py - publish temperature via bluetooth low energy
 * classfill.py - fill screen with a single color
 * clock.py - show clock on screen
+* clockandtemp.py - show clock and temperatures from zigbee2mqtt on screen
 * colorspace.py - show YCbCr/YUV colorspace on screen
 * copy-file.py - copy file from sdcard to flash
 * decompress-image.py - load png file from http, display on screen
