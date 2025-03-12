@@ -1,4 +1,5 @@
 {
+	"clientname": "esp32",
 	"server": "mosquitto.example.com",
 	"user": "micropython",
 	"password": "secrets"
