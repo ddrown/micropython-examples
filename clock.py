@@ -4,6 +4,7 @@ from lib.digitdisplay import DigitDisplay
 from lib.clocksync import ClockSync
 from lib.wifi import connect_wifi
 import asyncio
+from utztime.tz.us import America_Chicago
 
 def setup():
     display = ILI9488()
@@ -22,11 +23,9 @@ def start_ntp(ntpserver, display):
 
     connect_wifi()
 
-    timezone_offset = -6 * 60 * 60
-
     status.display("ntp query")
 
-    clock = ClockSync(timezone_offset, ntpserver)
+    clock = ClockSync(America_Chicago, ntpserver)
 
     status.display(" ")
 
@@ -51,7 +50,7 @@ async def show_clock(clock, display):
             print(f"loop {diff} ms") # .x digit:25~28ms .xx digit:~30ms
             printed += 1
         if last_hours != hours:
-            date = time.gmtime(now_s - 946706400) # micropython uses y2k epoch
+            date = time.gmtime(now_s)
             date_s = f"{date[0]:04}-{date[1]:02}-{date[2]:02}"
             date_digits.display(date_s)
             last_hours = hours

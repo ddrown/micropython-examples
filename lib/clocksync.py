@@ -1,13 +1,14 @@
+# depends on https://github.com/shaneapowell/utztime
 import time
 from lib.ntp import NTPClient
 from lib.ntpclock import NTPClock
 import asyncio
 
 class ClockSync:
-    def __init__(self, timezone_offset, ntpserver):
+    def __init__(self, timezone, ntpserver):
         self.ntp = NTPClient(ntpserver)
         now = self.ntp.ntptime()
-        self.timezone_offset = timezone_offset
+        self.timezone = timezone
         self.clock = NTPClock(now[2], now[0], now[1], 0)
         self.last_offset = None
         self.last_p_ppm = None
@@ -63,7 +64,7 @@ class ClockSync:
                 await asyncio.sleep_ms(1024000)
 
     def unixtime_to_clock(self, s, ms):
-        s += self.timezone_offset
+        s = self.timezone.toLocal(s - 946684800)
 
         hours = (s // (60 * 60)) % 12
         if hours == 0:
