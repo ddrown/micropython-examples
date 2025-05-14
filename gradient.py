@@ -33,4 +33,4 @@ while True:
     delta = time.ticks_diff(time.ticks_ms(), start)
     print(f"took {delta}ms") # 4036ms
     
-    time.sleep(30)
+    time.sleep(10)
