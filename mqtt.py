@@ -1,6 +1,9 @@
 import time
 from umqtt.simple import MQTTClient
 import json
+from lib.wifi import connect_wifi
+
+connect_wifi()
 
 # Received messages from subscriptions will be delivered to this callback
 def sub_cb(topic, msg):
