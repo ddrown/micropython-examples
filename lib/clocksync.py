@@ -77,3 +77,7 @@ class ClockSync:
     def now(self):
         (now_s, now_ms) = self.clock.now()
         return self.unixtime_to_clock(now_s, now_ms)
+
+    def unixtime(self):
+        (now_s, now_ms) = self.clock.now()
+        return now_s
