@@ -6,7 +6,6 @@ def b32decode(encoded):
     alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
     alphabet_map = {char: i for i, char in enumerate(alphabet)}
     b32_string = encoded.upper().rstrip("=")
-    total_bits = len(b32_string) * 5
     decoded_bytes = bytearray()
 
     # Process the Base32 string 8 characters (40 bits) at a time.
